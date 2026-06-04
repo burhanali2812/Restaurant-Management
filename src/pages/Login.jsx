@@ -27,7 +27,7 @@ function Login() {
     try {
       // Call backend API for login
       const response = await axios.post(
-        "http://localhost:5000/api/users/login",
+        "https://restaurant-manage-backend.vercel.app/api/users/login",
         {
           phone,
           password,
