@@ -51,7 +51,7 @@ function RestaurantDashboard() {
     setLoading(true);
     try {
       const response = await axios.get(
-        `http://localhost:5000/api/orders/metrics`,
+        `https://restaurant-manage-backend.vercel.app/api/orders/metrics`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -87,7 +87,7 @@ function RestaurantDashboard() {
     setLoadingWaiters(true);
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/waiters/waiters-stats",
+        "https://restaurant-manage-backend.vercel.app/api/waiters/waiters-stats",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -132,7 +132,7 @@ function RestaurantDashboard() {
     setLoadingOrders(true);
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/orders/recent-orders",
+        "https://restaurant-manage-backend.vercel.app/api/orders/recent-orders",
         {
           headers: {
             Authorization: `Bearer ${token}`,

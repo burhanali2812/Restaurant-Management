@@ -19,7 +19,7 @@ function Category() {
   const token = localStorage.getItem("token");
 
   const api = axios.create({
-    baseURL: "http://localhost:5000/api/category",
+    baseURL: "https://restaurant-manage-backend.vercel.app/api/category",
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -32,7 +32,7 @@ function Category() {
 
   useEffect(() => {
     const filtered = categories.filter((category) =>
-      category.name.toLowerCase().includes(search.toLowerCase())
+      category.name.toLowerCase().includes(search.toLowerCase()),
     );
 
     setFilteredCategories(filtered);
@@ -104,7 +104,7 @@ function Category() {
 
   const deleteCategory = async (id) => {
     const confirmDelete = window.confirm(
-      "Are you sure you want to delete this category?"
+      "Are you sure you want to delete this category?",
     );
 
     if (!confirmDelete) return;
@@ -121,166 +121,141 @@ function Category() {
   };
 
   return (
-   <div>
-        <TopBar />
-         <div className="container mt-4">
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <h3>Categories</h3>
+    <div>
+      <TopBar />
+      <div className="container mt-4">
+        <div className="d-flex justify-content-between align-items-center mb-3">
+          <h3>Categories</h3>
 
-        <button
-          className="btn btn-primary"
-          onClick={openAddModal}
-        >
-          Add Category
-        </button>
-      </div>
+          <button className="btn btn-primary" onClick={openAddModal}>
+            Add Category
+          </button>
+        </div>
 
-      <input
-        type="text"
-        className="form-control mb-3"
-        placeholder="Search Category..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
+        <input
+          type="text"
+          className="form-control mb-3"
+          placeholder="Search Category..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
 
-      <div className="table-responsive">
-        <table className="table table-bordered table-striped">
-          <thead className="table-dark">
-            <tr>
-              <th>#</th>
-              <th>Name</th>
-              <th>Description</th>
-              <th>Created At</th>
-              <th width="180">Action</th>
-            </tr>
-          </thead>
+        <div className="table-responsive">
+          <table className="table table-bordered table-striped">
+            <thead className="table-dark">
+              <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Created At</th>
+                <th width="180">Action</th>
+              </tr>
+            </thead>
 
-          <tbody>
-            {filteredCategories.length > 0 ? (
-              filteredCategories.map((category, index) => (
-                <tr key={category._id}>
-                  <td>{index + 1}</td>
+            <tbody>
+              {filteredCategories.length > 0 ? (
+                filteredCategories.map((category, index) => (
+                  <tr key={category._id}>
+                    <td>{index + 1}</td>
 
-                  <td>{category.name}</td>
+                    <td>{category.name}</td>
 
-                  <td>{category.description}</td>
+                    <td>{category.description}</td>
 
-                  <td>
-                    {new Date(
-                      category.timestamp
-                    ).toLocaleDateString()}
-                  </td>
+                    <td>{new Date(category.timestamp).toLocaleDateString()}</td>
 
-                  <td>
-                    <button
-                      className="btn btn-warning btn-sm me-2"
-                      onClick={() => openEditModal(category)}
-                    >
-                      Edit
-                    </button>
+                    <td>
+                      <button
+                        className="btn btn-warning btn-sm me-2"
+                        onClick={() => openEditModal(category)}
+                      >
+                        Edit
+                      </button>
 
-                    <button
-                      className="btn btn-danger btn-sm"
-                      onClick={() =>
-                        deleteCategory(category._id)
-                      }
-                    >
-                      Delete
-                    </button>
+                      <button
+                        className="btn btn-danger btn-sm"
+                        onClick={() => deleteCategory(category._id)}
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="5" className="text-center">
+                    No Categories Found
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td
-                  colSpan="5"
-                  className="text-center"
-                >
-                  No Categories Found
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+              )}
+            </tbody>
+          </table>
+        </div>
 
-      {showModal && (
-        <div
-          className="modal fade show d-block"
-          style={{
-            backgroundColor: "rgba(0,0,0,0.5)",
-          }}
-        >
-          <div className="modal-dialog">
-            <div className="modal-content">
+        {showModal && (
+          <div
+            className="modal fade show d-block"
+            style={{
+              backgroundColor: "rgba(0,0,0,0.5)",
+            }}
+          >
+            <div className="modal-dialog">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title">
+                    {isEdit ? "Edit Category" : "Add Category"}
+                  </h5>
 
-              <div className="modal-header">
-                <h5 className="modal-title">
-                  {isEdit
-                    ? "Edit Category"
-                    : "Add Category"}
-                </h5>
-
-                <button
-                  className="btn-close"
-                  onClick={() =>
-                    setShowModal(false)
-                  }
-                />
-              </div>
-
-              <div className="modal-body">
-
-                <div className="mb-3">
-                  <label>Name</label>
-
-                  <input
-                    type="text"
-                    className="form-control"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInput}
+                  <button
+                    className="btn-close"
+                    onClick={() => setShowModal(false)}
                   />
                 </div>
 
-                <div className="mb-3">
-                  <label>Description</label>
+                <div className="modal-body">
+                  <div className="mb-3">
+                    <label>Name</label>
 
-                  <textarea
-                    rows="4"
-                    className="form-control"
-                    name="description"
-                    value={formData.description}
-                    onChange={handleInput}
-                  />
+                    <input
+                      type="text"
+                      className="form-control"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleInput}
+                    />
+                  </div>
+
+                  <div className="mb-3">
+                    <label>Description</label>
+
+                    <textarea
+                      rows="4"
+                      className="form-control"
+                      name="description"
+                      value={formData.description}
+                      onChange={handleInput}
+                    />
+                  </div>
                 </div>
 
+                <div className="modal-footer">
+                  <button
+                    className="btn btn-secondary"
+                    onClick={() => setShowModal(false)}
+                  >
+                    Close
+                  </button>
+
+                  <button className="btn btn-primary" onClick={handleSubmit}>
+                    {isEdit ? "Update" : "Save"}
+                  </button>
+                </div>
               </div>
-
-              <div className="modal-footer">
-                <button
-                  className="btn btn-secondary"
-                  onClick={() =>
-                    setShowModal(false)
-                  }
-                >
-                  Close
-                </button>
-
-                <button
-                  className="btn btn-primary"
-                  onClick={handleSubmit}
-                >
-                  {isEdit ? "Update" : "Save"}
-                </button>
-              </div>
-
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
-   </div>
   );
 }
 

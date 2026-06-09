@@ -16,7 +16,7 @@ function Waiters() {
   const restaurantId = user?.restid || "";
 
   const api = axios.create({
-    baseURL: "http://localhost:5000/api/waiters",
+    baseURL: "https://restaurant-manage-backend.vercel.app/api/waiters",
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -33,7 +33,7 @@ function Waiters() {
 
   useEffect(() => {
     const filtered = waiters.filter((waiter) =>
-      waiter.name.toLowerCase().includes(search.toLowerCase())
+      waiter.name.toLowerCase().includes(search.toLowerCase()),
     );
 
     setFilteredWaiters(filtered);
@@ -114,162 +114,135 @@ function Waiters() {
   };
 
   return (
-   <div>
-    <TopBar />
-     <div className="container mt-4">
+    <div>
+      <TopBar />
+      <div className="container mt-4">
+        {/* HEADER */}
+        <div className="d-flex justify-content-between mb-3">
+          <h3>Waiters</h3>
 
-      {/* HEADER */}
-      <div className="d-flex justify-content-between mb-3">
-        <h3>Waiters</h3>
-
-        <button
-          className="btn btn-primary"
-          onClick={openAdd}
-        >
-          + Add Waiter
-        </button>
-      </div>
-
-      {/* STATS */}
-      <div className="row mb-3">
-        <div className="col-md-4">
-          <div className="card text-center p-3">
-            <h6>Total Waiters</h6>
-            <h3>{filteredWaiters.length}</h3>
-          </div>
+          <button className="btn btn-primary" onClick={openAdd}>
+            + Add Waiter
+          </button>
         </div>
-      </div>
 
-      {/* SEARCH */}
-      <input
-        type="text"
-        className="form-control mb-3"
-        placeholder="Search waiter..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
-
-      {/* TABLE */}
-      <div className="table-responsive">
-        <table className="table table-bordered">
-          <thead className="table-dark">
-            <tr>
-              <th>#</th>
-              <th>Waiter Name</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {filteredWaiters.length > 0 ? (
-              filteredWaiters.map((waiter, index) => (
-                <tr key={waiter._id}>
-                  <td>{index + 1}</td>
-
-                  <td>{waiter.name}</td>
-
-                  <td>
-                    <button
-                      className="btn btn-warning btn-sm me-2"
-                      onClick={() => openEdit(waiter)}
-                    >
-                      Edit
-                    </button>
-
-                    <button
-                      className="btn btn-danger btn-sm"
-                      onClick={() =>
-                        deleteWaiter(waiter._id)
-                      }
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td
-                  colSpan="3"
-                  className="text-center"
-                >
-                  No Waiters Found
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {/* MODAL */}
-      {showModal && (
-        <div
-          className="modal show d-block"
-          style={{
-            background: "rgba(0,0,0,0.5)",
-          }}
-        >
-          <div className="modal-dialog">
-            <div className="modal-content">
-
-              <div className="modal-header">
-                <h5>
-                  {isEdit
-                    ? "Edit Waiter"
-                    : "Add Waiter"}
-                </h5>
-
-                <button
-                  className="btn-close"
-                  onClick={() =>
-                    setShowModal(false)
-                  }
-                />
-              </div>
-
-              <div className="modal-body">
-
-                <input
-                  className="form-control"
-                  placeholder="Waiter Name"
-                  value={formData.name}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      name: e.target.value,
-                    })
-                  }
-                />
-
-              </div>
-
-              <div className="modal-footer">
-
-                <button
-                  className="btn btn-secondary"
-                  onClick={() =>
-                    setShowModal(false)
-                  }
-                >
-                  Close
-                </button>
-
-                <button
-                  className="btn btn-primary"
-                  onClick={handleSubmit}
-                >
-                  {isEdit ? "Update" : "Save"}
-                </button>
-
-              </div>
-
+        {/* STATS */}
+        <div className="row mb-3">
+          <div className="col-md-4">
+            <div className="card text-center p-3">
+              <h6>Total Waiters</h6>
+              <h3>{filteredWaiters.length}</h3>
             </div>
           </div>
         </div>
-      )}
 
+        {/* SEARCH */}
+        <input
+          type="text"
+          className="form-control mb-3"
+          placeholder="Search waiter..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+
+        {/* TABLE */}
+        <div className="table-responsive">
+          <table className="table table-bordered">
+            <thead className="table-dark">
+              <tr>
+                <th>#</th>
+                <th>Waiter Name</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {filteredWaiters.length > 0 ? (
+                filteredWaiters.map((waiter, index) => (
+                  <tr key={waiter._id}>
+                    <td>{index + 1}</td>
+
+                    <td>{waiter.name}</td>
+
+                    <td>
+                      <button
+                        className="btn btn-warning btn-sm me-2"
+                        onClick={() => openEdit(waiter)}
+                      >
+                        Edit
+                      </button>
+
+                      <button
+                        className="btn btn-danger btn-sm"
+                        onClick={() => deleteWaiter(waiter._id)}
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="3" className="text-center">
+                    No Waiters Found
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* MODAL */}
+        {showModal && (
+          <div
+            className="modal show d-block"
+            style={{
+              background: "rgba(0,0,0,0.5)",
+            }}
+          >
+            <div className="modal-dialog">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5>{isEdit ? "Edit Waiter" : "Add Waiter"}</h5>
+
+                  <button
+                    className="btn-close"
+                    onClick={() => setShowModal(false)}
+                  />
+                </div>
+
+                <div className="modal-body">
+                  <input
+                    className="form-control"
+                    placeholder="Waiter Name"
+                    value={formData.name}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        name: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+
+                <div className="modal-footer">
+                  <button
+                    className="btn btn-secondary"
+                    onClick={() => setShowModal(false)}
+                  >
+                    Close
+                  </button>
+
+                  <button className="btn btn-primary" onClick={handleSubmit}>
+                    {isEdit ? "Update" : "Save"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
-   </div>
   );
 }
 

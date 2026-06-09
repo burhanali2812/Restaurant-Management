@@ -5,7 +5,7 @@ import {
   connectQZ,
   printCustomerBill,
   printWaiterToken,
-  printKitchenToken
+  printKitchenToken,
 } from "../services/qzPrintService";
 
 function OrderPlace() {
@@ -31,16 +31,16 @@ function OrderPlace() {
     const fetchData = async () => {
       const [p, w, c] = await Promise.all([
         axios.get(
-          `http://localhost:5000/api/products/getProducts/${restaurantId}`,
-          { headers: { Authorization: `Bearer ${token}` } }
+          `https://restaurant-manage-backend.vercel.app/api/products/getProducts/${restaurantId}`,
+          { headers: { Authorization: `Bearer ${token}` } },
         ),
         axios.get(
-          `http://localhost:5000/api/waiters/getWaiters/${restaurantId}`,
-          { headers: { Authorization: `Bearer ${token}` } }
+          `https://restaurant-manage-backend.vercel.app/api/waiters/getWaiters/${restaurantId}`,
+          { headers: { Authorization: `Bearer ${token}` } },
         ),
         axios.get(
-          `http://localhost:5000/api/category/getCategories/${user?.restid }`,
-          { headers: { Authorization: `Bearer ${token}` } }
+          `https://restaurant-manage-backend.vercel.app/api/category/getCategories/${user?.restid}`,
+          { headers: { Authorization: `Bearer ${token}` } },
         ),
       ]);
 
@@ -62,7 +62,7 @@ function OrderPlace() {
 
       if (existing) {
         return prev.map((i) =>
-          i.key === key ? { ...i, quantity: i.quantity + 1 } : i
+          i.key === key ? { ...i, quantity: i.quantity + 1 } : i,
         );
       }
 
@@ -91,7 +91,7 @@ function OrderPlace() {
       }
 
       return prev.map((i) =>
-        i.key === item.key ? { ...i, quantity: i.quantity - 1 } : i
+        i.key === item.key ? { ...i, quantity: i.quantity - 1 } : i,
       );
     });
   };
@@ -102,22 +102,16 @@ function OrderPlace() {
 
   // ================= FILTER =================
   const filteredProducts = products.filter((p) => {
-    const matchSearch = p.name
-      .toLowerCase()
-      .includes(search.toLowerCase());
+    const matchSearch = p.name.toLowerCase().includes(search.toLowerCase());
 
     const matchCategory =
-      categoryFilter === "all" ||
-      p.categoryId?._id === categoryFilter;
+      categoryFilter === "all" || p.categoryId?._id === categoryFilter;
 
     return matchSearch && matchCategory;
   });
 
   // ================= TOTAL =================
-  const subtotal = cart.reduce(
-    (a, i) => a + i.price * i.quantity,
-    0
-  );
+  const subtotal = cart.reduce((a, i) => a + i.price * i.quantity, 0);
 
   const total = subtotal - Number(discount || 0);
 
@@ -133,7 +127,10 @@ function OrderPlace() {
       return false;
     }
 
-    if ((orderType === "dine-in" || orderType === "delivery") && !selectedWaiter) {
+    if (
+      (orderType === "dine-in" || orderType === "delivery") &&
+      !selectedWaiter
+    ) {
       alert("Select waiter / rider");
       return false;
     }
@@ -161,18 +158,20 @@ function OrderPlace() {
       total,
     };
 
-   const res =  await axios.post(
-      "http://localhost:5000/api/orders/addOrder",
+    const res = await axios.post(
+      "https://restaurant-manage-backend.vercel.app/api/orders/addOrder",
       payload,
-      { headers: { Authorization: `Bearer ${token}` } }
+      { headers: { Authorization: `Bearer ${token}` } },
     );
 
     alert("Order Placed Successfully");
-    if(orderType === "dine-in") {
-     printKitchenToken(res.data.data);
-     printWaiterToken(res.data.data, res.data.waiter ? res.data.waiter.name : "N/A");
-    }
-    else if(orderType === "takeaway" || orderType === "delivery") {
+    if (orderType === "dine-in") {
+      printKitchenToken(res.data.data);
+      printWaiterToken(
+        res.data.data,
+        res.data.waiter ? res.data.waiter.name : "N/A",
+      );
+    } else if (orderType === "takeaway" || orderType === "delivery") {
       printKitchenToken(res.data.data);
       printCustomerBill(res.data.data, res.data.restaurant);
     }
@@ -190,10 +189,8 @@ function OrderPlace() {
 
       <div className="container-fluid bg-light vh-100">
         <div className="row h-100">
-
           {/* ================= LEFT ================= */}
           <div className="col-12 col-lg-8 p-3 overflow-auto">
-
             {/* SEARCH */}
             <div className="input-group mb-3">
               <span className="input-group-text">
@@ -231,9 +228,7 @@ function OrderPlace() {
             <div className="row g-3">
               {filteredProducts.map((p) => (
                 <div key={p._id} className="col-6 col-md-4 col-lg-3">
-
                   <div className="card shadow-sm border-0 p-2 h-100">
-
                     <h6 className="fw-bold">
                       <i className="fa fa-utensils me-2"></i>
                       {p.name}
@@ -258,9 +253,7 @@ function OrderPlace() {
                         Add Rs {p.price}
                       </button>
                     )}
-
                   </div>
-
                 </div>
               ))}
             </div>
@@ -268,13 +261,12 @@ function OrderPlace() {
 
           {/* ================= RIGHT ================= */}
           <div className="col-12 col-lg-4 bg-white border-start p-3 d-flex flex-column vh-100">
-
             {/* ORDER TYPE */}
             <div className="d-flex gap-2 mb-3">
               {[
                 { key: "dine-in", icon: "fa-chair", label: "Dine In" },
                 { key: "takeaway", icon: "fa-shopping-bag", label: "Takeaway" },
-                { key: "delivery", icon: "fa-truck", label: "Delivery" }
+                { key: "delivery", icon: "fa-truck", label: "Delivery" },
               ].map((t) => (
                 <button
                   key={t.key}
@@ -290,7 +282,6 @@ function OrderPlace() {
             {/* TABLE + WAITER */}
             {(orderType === "dine-in" || orderType === "delivery") && (
               <div className="mb-2">
-
                 {orderType === "dine-in" && (
                   <input
                     className="form-control mb-2"
@@ -317,7 +308,6 @@ function OrderPlace() {
 
             {/* CART */}
             <div className="flex-grow-0 overflow-auto">
-
               {cart.length === 0 ? (
                 <div className="text-center text-muted mt-5">
                   <i className="fa fa-shopping-cart fa-3x"></i>
@@ -325,21 +315,20 @@ function OrderPlace() {
                 </div>
               ) : (
                 <div className="list-group">
-
                   {cart.map((item) => (
                     <div
                       key={item.key}
                       className="list-group-item d-flex justify-content-between"
                     >
-
                       <div>
-                        <b>{item.name}</b><br />
-                        <small>{item.variantName}</small><br />
+                        <b>{item.name}</b>
+                        <br />
+                        <small>{item.variantName}</small>
+                        <br />
                         Rs {item.price * item.quantity}
                       </div>
 
                       <div className="text-end">
-
                         <button
                           className="btn btn-sm btn-danger"
                           onClick={() => decreaseQty(item)}
@@ -347,16 +336,20 @@ function OrderPlace() {
                           <i className="fa fa-minus"></i>
                         </button>
 
-                        <span className="mx-2 fw-bold">
-                          {item.quantity}
-                        </span>
+                        <span className="mx-2 fw-bold">{item.quantity}</span>
 
                         <button
                           className="btn btn-sm btn-success"
-                          onClick={() => addToCart(
-                            { _id: item.productId, name: item.name, price: item.price },
-                            { name: item.variantName, price: item.price }
-                          )}
+                          onClick={() =>
+                            addToCart(
+                              {
+                                _id: item.productId,
+                                name: item.name,
+                                price: item.price,
+                              },
+                              { name: item.variantName, price: item.price },
+                            )
+                          }
                         >
                           <i className="fa fa-plus"></i>
                         </button>
@@ -367,19 +360,15 @@ function OrderPlace() {
                         >
                           <i className="fa fa-trash"></i>
                         </button>
-
                       </div>
-
                     </div>
                   ))}
-
                 </div>
               )}
             </div>
 
             {/* BILL */}
             <div className="border-top pt-2">
-
               <div className="d-flex justify-content-between">
                 <span>Subtotal</span>
                 <b>Rs {subtotal}</b>
@@ -406,11 +395,8 @@ function OrderPlace() {
                 <i className="fa fa-check me-2"></i>
                 Confirm Order
               </button>
-
             </div>
-
           </div>
-
         </div>
       </div>
     </div>

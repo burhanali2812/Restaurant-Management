@@ -21,7 +21,7 @@ function OrderManagement() {
   const fetchOrders = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:5000/api/orders/getOrders",
+        "https://restaurant-manage-backend.vercel.app/api/orders/getOrders",
         { headers: { Authorization: `Bearer ${token}` } },
       );
 
@@ -39,7 +39,7 @@ function OrderManagement() {
   const updateStatus = async (id, status) => {
     try {
       const res = await axios.put(
-        `http://localhost:5000/api/orders/updateOrder/${id}`,
+        `https://restaurant-manage-backend.vercel.app/api/orders/updateOrder/${id}`,
         { status },
         { headers: { Authorization: `Bearer ${token}` } },
       );
@@ -66,9 +66,12 @@ function OrderManagement() {
   const deleteOrder = async (id) => {
     if (!window.confirm("Delete this order?")) return;
 
-    await axios.delete(`http://localhost:5000/api/orders/deleteOrder/${id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    await axios.delete(
+      `https://restaurant-manage-backend.vercel.app/api/orders/deleteOrder/${id}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    );
 
     fetchOrders();
   };
@@ -106,26 +109,28 @@ function OrderManagement() {
   const printInvoices = async (order) => {
     console.log("Printing invoices for order:", order);
     const res = await axios.get(
-      `http://localhost:5000/api/users/getRestaurant/${order.restaurantId._id}`,
+      `https://restaurant-manage-backend.vercel.app/api/users/getRestaurant/${order.restaurantId._id}`,
       { headers: { Authorization: `Bearer ${token}` } },
-    )
-  if(res.data.success) {
-    const restaurant = res.data.data;
+    );
+    if (res.data.success) {
+      const restaurant = res.data.data;
       if (order.status === "paid") {
         console.log(restaurant.data);
-      await printPaidBill(
-        order,
-        restaurant,
-        order.waiterId ? order.waiterId : "N/A",
-      );
-    } else if (order.status === "served") {
-      await printCustomerBill(order, restaurant);
-    } else if (order.status === "ready") {
-      await printKitchenToken(order);
-      await printWaiterToken(order, order.waiterId ? order.waiterId.name : "N/A");
+        await printPaidBill(
+          order,
+          restaurant,
+          order.waiterId ? order.waiterId : "N/A",
+        );
+      } else if (order.status === "served") {
+        await printCustomerBill(order, restaurant);
+      } else if (order.status === "ready") {
+        await printKitchenToken(order);
+        await printWaiterToken(
+          order,
+          order.waiterId ? order.waiterId.name : "N/A",
+        );
+      }
     }
-  }
-        
   };
 
   return (

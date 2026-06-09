@@ -13,7 +13,7 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    if(phone.trim() === "" || password.trim() === "") {
+    if (phone.trim() === "" || password.trim() === "") {
       toast.error("Please fill in all fields");
       setLoading(false);
       return;
@@ -27,16 +27,12 @@ function Login() {
     try {
       // Call backend API for login
       const response = await axios.post(
-        "http://localhost:5000/api/users/login",
+        "https://restaurant-manage-backend.vercel.app/api/users/login",
         {
           phone,
           password,
         },
-
-        
       );
-
-      
 
       if (response.data.success === true) {
         // Store token and redirect
@@ -45,11 +41,11 @@ function Login() {
         console.log("Login successful:", response.data);
         toast.success("Login successful!");
         setTimeout(() => {
-            if(response.data.user.role === "user"){
-                navigate("/dashboard/owner");
-            } else {
-                navigate("/dashboard/owner");
-            }
+          if (response.data.user.role === "user") {
+            navigate("/dashboard/owner");
+          } else {
+            navigate("/dashboard/owner");
+          }
         }, 1500);
       }
     } catch (err) {
