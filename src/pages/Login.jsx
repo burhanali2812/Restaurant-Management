@@ -27,7 +27,7 @@ function Login() {
     try {
       // Call backend API for login
       const response = await axios.post(
-        "https://restaurant-manage-backend.vercel.app/api/users/login",
+        "http://localhost:5000/api/users/login",
         {
           phone,
           password,
@@ -40,12 +40,17 @@ function Login() {
 
       if (response.data.success === true) {
         // Store token and redirect
-        // localStorage.setItem("token", response.data.token);
-        // localStorage.setItem("user", JSON.stringify(response.data.user));
+        localStorage.setItem("token", response.data.token);
+        localStorage.setItem("user", JSON.stringify(response.data.user));
+        console.log("Login successful:", response.data);
         toast.success("Login successful!");
-        // setTimeout(() => {
-        //   navigate("/dashboard/owner");
-        // }, 1500);
+        setTimeout(() => {
+            if(response.data.user.role === "user"){
+                navigate("/dashboard/owner");
+            } else {
+                navigate("/dashboard/owner");
+            }
+        }, 1500);
       }
     } catch (err) {
       const errorMessage = err.response?.data?.message || "Login failed";
