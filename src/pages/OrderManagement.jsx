@@ -16,6 +16,7 @@ function OrderManagement() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [expandedOrder, setExpandedOrder] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   // ================= FETCH =================
   const fetchOrders = async () => {
@@ -37,6 +38,7 @@ function OrderManagement() {
 
   // ================= STATUS UPDATE =================
   const updateStatus = async (id, status) => {
+    setLoading(true);
     try {
       const res = await axios.put(
         `https://restaurant-manage-backend.vercel.app/api/orders/updateOrder/${id}`,
@@ -55,10 +57,14 @@ function OrderManagement() {
           res.data.waiter,
         );
       }
+      
 
       fetchOrders();
+      setLoading(false);
     } catch (err) {
       alert("Status update failed");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -137,7 +143,15 @@ function OrderManagement() {
     <div>
       <TopBar />
 
-      <div className="container-fluid p-3">
+    {
+      loading ? (
+        <div className="d-flex justify-content-center align-items-center" style={{ height: "80vh" }}>
+          <div className="spinner-border text-primary" role="status"> 
+            <span className="visually-hidden">Loading...</span>
+          </div>
+        </div>
+      ):(
+          <div className="container-fluid p-3">
         {/* HEADER */}
         <div className="d-flex justify-content-between mb-3">
           <h4>
@@ -316,6 +330,9 @@ function OrderManagement() {
           </table>
         </div>
       </div>
+      )
+
+    }
     </div>
   );
 }

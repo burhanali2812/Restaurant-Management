@@ -281,7 +281,7 @@ function RestaurantDashboard() {
       <div className="dashboard-top-bar">
         <div className="top-bar-left">
           <div className="logo-section">
-            <img src="/images/logo2.png" alt="Logo" className="circular-logo" />
+            <img src="/images/logo2.PNG" alt="Logo" className="circular-logo" />
             <div className="logo-text">
               <h3 className="restaurant-name">
                 {user?.restname} {" Restaurant"}
