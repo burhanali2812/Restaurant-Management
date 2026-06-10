@@ -1,6 +1,6 @@
 import qz from "qz-tray";
 
-const DEFAULT_PRINTER = "BlackCopper 80mm Series(2)";
+const DEFAULT_PRINTER = "BlackCopper 80mm Series";
 
 // ========================
 // INIT (runs once, sets up security — NO connection here)
