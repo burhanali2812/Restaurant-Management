@@ -45,7 +45,7 @@ function RestaurantDashboard() {
   // Fetch metrics
   useEffect(() => {
     fetchMetrics();
-  }, [startDate, endDate]);
+  }, []);
 
   const fetchMetrics = async () => {
     setLoading(true);

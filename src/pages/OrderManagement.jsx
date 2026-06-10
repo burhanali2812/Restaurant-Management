@@ -42,7 +42,7 @@ function OrderManagement() {
     try {
       const res = await axios.put(
         `https://restaurant-manage-backend.vercel.app/api/orders/updateOrder/${id}`,
-        { status },
+        { status , amount: orders.find((o) => o._id === id)?.total || 0 },
         { headers: { Authorization: `Bearer ${token}` } },
       );
       if (status === "served") {
