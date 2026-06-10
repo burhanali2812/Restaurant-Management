@@ -94,29 +94,7 @@ function RestaurantDashboard() {
       }
     } catch (error) {
       console.error("Error fetching waiters:", error);
-      setWaitersData([
-        {
-          id: 1,
-          name: "Ahmed",
-          activeOrders: 5,
-          completedOrders: 45,
-          totalAmount: 12500,
-        },
-        {
-          id: 2,
-          name: "Ali",
-          activeOrders: 3,
-          completedOrders: 38,
-          totalAmount: 9800,
-        },
-        {
-          id: 3,
-          name: "Hassan",
-          activeOrders: 4,
-          completedOrders: 52,
-          totalAmount: 14200,
-        },
-      ]);
+     
     } finally {
       setLoadingWaiters(false);
     }
@@ -139,48 +117,7 @@ function RestaurantDashboard() {
       }
     } catch (error) {
       console.error("Error fetching orders:", error);
-      setRecentOrders([
-        {
-          id: 1,
-          orderNo: "#ORD001",
-          waiter: "Ahmed",
-          status: "Completed",
-          amount: 2500,
-          time: "2:30 PM",
-        },
-        {
-          id: 2,
-          orderNo: "#ORD002",
-          waiter: "Ali",
-          status: "In Progress",
-          amount: 1800,
-          time: "2:15 PM",
-        },
-        {
-          id: 3,
-          orderNo: "#ORD003",
-          waiter: "Hassan",
-          status: "Completed",
-          amount: 3200,
-          time: "2:00 PM",
-        },
-        {
-          id: 4,
-          orderNo: "#ORD004",
-          waiter: "Ahmed",
-          status: "Pending",
-          amount: 1500,
-          time: "1:45 PM",
-        },
-        {
-          id: 5,
-          orderNo: "#ORD005",
-          waiter: "Ali",
-          status: "Completed",
-          amount: 2900,
-          time: "1:30 PM",
-        },
-      ]);
+   
     } finally {
       setLoadingOrders(false);
     }
