@@ -6,6 +6,7 @@ import {
   printCustomerBill,
   printWaiterToken,
   printKitchenToken,
+  printPaidBill,
 } from "../services/qzPrintService";
 
 // ─── tiny inline styles kept here so no extra CSS file is needed ───
@@ -255,7 +256,8 @@ export default function OrderPlace() {
       subtotal,
       discount: discountAmt,
       total,
-    };
+    }
+    console.log("Payload:", payload);
 
     try {
       const res = await axios.post(`${BASE}/orders/addOrder`, payload, { headers });
@@ -264,7 +266,12 @@ export default function OrderPlace() {
       if (orderType === "dine-in") {
         printKitchenToken(order);
         printWaiterToken(order, res.data.waiter?.name || "N/A");
-      } else {
+      }
+      else if (orderType === "takeaway" || orderType === "delivery") {
+        printKitchenToken(order);
+        printPaidBill(order, res.data.restaurant, res.data.waiter?.name || "N/A");
+      }
+       else {
         printKitchenToken(order);
         printCustomerBill(order, res.data.restaurant);
       }
