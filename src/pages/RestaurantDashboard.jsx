@@ -72,6 +72,7 @@ function RestaurantDashboard() {
       }
     } catch (error) {
       console.error("Error fetching metrics:", error);
+      alert(error.response?.data?.message || "Failed to fetch metrics");
     } finally {
       setLoading(false);
     }
@@ -94,6 +95,7 @@ function RestaurantDashboard() {
       }
     } catch (error) {
       console.error("Error fetching waiters:", error);
+      alert("Failed to fetch waiters data");
      
     } finally {
       setLoadingWaiters(false);
@@ -117,7 +119,7 @@ function RestaurantDashboard() {
       }
     } catch (error) {
       console.error("Error fetching orders:", error);
-   
+      alert(error.response?.data?.message || "Failed to fetch recent orders");
     } finally {
       setLoadingOrders(false);
     }
