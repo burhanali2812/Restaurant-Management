@@ -49,7 +49,7 @@ function TopBar() {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     setShowLogout(false);
-    navigate("/login");
+    navigate("/");
   };
 
   return (
