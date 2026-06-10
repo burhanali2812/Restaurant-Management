@@ -8,6 +8,7 @@ function Login() {
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -107,7 +108,7 @@ function Login() {
                 </label>
                 <div className="input-wrapper">
                   <input
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     id="password"
                     className="form-input form-control"
                     placeholder="••••••••"
@@ -121,12 +122,10 @@ function Login() {
               {/* Remember Me & Forgot Password */}
               <div className="form-options">
                 <label className="remember-me">
-                  <input type="checkbox" />
-                  <span>Remember me</span>
+                  <input type="checkbox" checked={showPassword} onChange={() => setShowPassword(!showPassword)} />
+                  <span>Show Password</span>
                 </label>
-                <a href="#forgot" className="forgot-password">
-                  Forgot password?
-                </a>
+             
               </div>
 
               {/* Submit Button */}
