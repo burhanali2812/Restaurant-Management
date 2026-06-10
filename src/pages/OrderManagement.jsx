@@ -129,7 +129,7 @@ function OrderManagement() {
         );
       } else if (order.status === "served") {
         await printCustomerBill(order, restaurant);
-      } else if (order.status === "ready") {
+      } else if (order.status === "pending" || order.status === "in-progress" || order.status === "ready") {
         await printKitchenToken(order);
         await printWaiterToken(
           order,

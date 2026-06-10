@@ -18,12 +18,12 @@ function Products() {
   const restaurantId = user?.restid || "";
 
   const api = axios.create({
-    baseURL: "http://localhost:5000/api/products",
+    baseURL: "https://restaurant-manage-backend.vercel.app/api/products",
     headers: { Authorization: `Bearer ${token}` },
   });
 
   const categoryApi = axios.create({
-    baseURL: "http://localhost:5000/api/category",
+    baseURL: "https://restaurant-manage-backend.vercel.app/api/category",
     headers: { Authorization: `Bearer ${token}` },
   });
 
