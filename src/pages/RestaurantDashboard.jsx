@@ -34,7 +34,7 @@ function RestaurantDashboard() {
     ? JSON.parse(localStorage.getItem("user"))
     : null;
 
-  // Update current date/time
+
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentDateTime(new Date());
@@ -48,6 +48,10 @@ function RestaurantDashboard() {
   }, []);
 
   const fetchMetrics = async () => {
+    if (startDate > endDate) {
+      alert("Start date cannot be greater than end date");
+      return;
+    }
     setLoading(true);
     try {
       const response = await axios.get(
@@ -68,15 +72,6 @@ function RestaurantDashboard() {
       }
     } catch (error) {
       console.error("Error fetching metrics:", error);
-      // Set dummy data if API fails
-      setMetrics({
-        totalSales: 45200,
-        totalOrders: 128,
-        pendingOrders: 12,
-        activeOrders: 5,
-        inProgressOrders: 8,
-        completedOrders: 103,
-      });
     } finally {
       setLoading(false);
     }
