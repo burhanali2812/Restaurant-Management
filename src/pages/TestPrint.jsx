@@ -1,50 +1,44 @@
-import {
-  connectQZ,
-  printCustomerBill
-} from "../services/qzPrintService";
+import React, { useState } from "react";
+import qz from "qz-tray";
 
 export default function TestPrint() {
+  const [printers, setPrinters] = useState([]);
 
-  const handlePrint = async () => {
+  const getPrinters = async () => {
+    try {
+      if (!qz.websocket.isActive()) {
+        await qz.websocket.connect();
+      }
 
-    await connectQZ();
-
-    const order = {
-      OrderNo: "1001",
-      tableNo: "5",
-      total: 2500,
-      discount: 0,
-      items: [
-        {
-          name: "Chicken Karahi",
-          variantName: "Half",
-          quantity: 1,
-          price: 1200,
-        },
-        {
-          name: "BBQ Platter",
-          variantName: "Full",
-          quantity: 1,
-          price: 1300,
-        },
-      ],
-    };
-
-    const restaurant = {
-      name: "Karhai & BBQ",
-      address: "Abbottabad",
-      phone: "03123456789"
-    };
-
-    await printCustomerBill(
-      order,
-      restaurant,
-    );
+      const list = await qz.printers.find();
+      setPrinters(list);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
-    <button onClick={handlePrint}>
-      Test Print
-    </button>
+    <div className="container mt-3">
+      <button className="btn btn-primary mb-3" onClick={getPrinters}>
+        Load Printers
+      </button>
+
+      <table className="table table-bordered">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Printer Name</th>
+          </tr>
+        </thead>
+        <tbody>
+          {printers.map((printer, index) => (
+            <tr key={printer}>
+              <td>{index + 1}</td>
+              <td>{printer}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
