@@ -15,6 +15,8 @@ function RestaurantDashboard() {
   const [restaurantInfo, setRestaurantInfo] = useState(null);
   const [startDate, setStartDate] = useState(today);
   const [endDate, setEndDate] = useState(tomorrowStart);
+  const [showSalesModal, setShowSalesModal] = useState(false);
+const [searchTerm, setSearchTerm] = useState("");
   const [metrics, setMetrics] = useState({
     totalSales: 0,
     totalOrders: 0,
@@ -22,6 +24,7 @@ function RestaurantDashboard() {
     activeOrders: 0,
     inProgressOrders: 0,
     completedOrders: 0,
+    productSummary: [],
   });
   const [loading, setLoading] = useState(false);
   const [waitersData, setWaitersData] = useState([]);
@@ -46,6 +49,7 @@ function RestaurantDashboard() {
   useEffect(() => {
     fetchMetrics();
   }, []);
+  
 
   const fetchMetrics = async () => {
     if (startDate > endDate) {
@@ -175,6 +179,9 @@ function RestaurantDashboard() {
       setEndDate(date);
     }
   };
+  const filteredProducts = metrics.productSummary?.filter((item) =>
+  item.productName.toLowerCase().includes(searchTerm.toLowerCase())
+);
 
   const quickAccessButtons = [
     {
@@ -306,7 +313,10 @@ function RestaurantDashboard() {
           <div className="loading">Loading metrics...</div>
         ) : (
           <div className="metrics-grid">
-            <div className="metric-card total-sales">
+            <div className="metric-card total-sales"
+              onClick={() => setShowSalesModal(true)}
+  style={{ cursor: "pointer" }}
+            >
               <div className="metric-header">
                 <h4>Today's Sales</h4>
                 <i className="fas fa-money-bill-wave"></i>
@@ -497,6 +507,68 @@ function RestaurantDashboard() {
       </div>
 
       <div style={{ marginTop: "50px" }}></div>
+
+      {showSalesModal && (
+  <div className="modal-overlay" onClick={() => setShowSalesModal(false)}>
+    <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+      
+      {/* Header */}
+      <div className="modal-header">
+        <h3>Today Sales - Product Summary</h3>
+ 
+        <button
+          className="close-btn"
+          onClick={() => setShowSalesModal(false)}
+        >
+          ✖
+        </button>
+      </div>
+      <div>
+               <p className="text-lead">From {startDate.toISOString().split('T')[0]} to {endDate.toISOString().split('T')[0]}</p>
+        {/* add note to chnage date from main dashboard */}
+        <span className="text-note">Change date range from the calendar icon on top right corner</span>
+      </div>
+
+      {/* Search */}
+      <input
+        type="text"
+        placeholder="Search product..."
+        className="search-input"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
+
+      {/* Table */}
+      <div className="modal-table-wrapper">
+        <table className="modal-table">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Quantity</th>
+              <th>Total Amount</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {filteredProducts?.length > 0 ? (
+              filteredProducts.map((item, index) => (
+                <tr key={index}>
+                  <td>{item.productName}</td>
+                  <td>{item.totalQuantity}</td>
+                  <td>PKR {item.totalAmount}</td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="3">No products found</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 }
