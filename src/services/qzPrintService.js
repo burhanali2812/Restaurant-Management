@@ -1,6 +1,6 @@
 import qz from "qz-tray";
 
-const DEFAULT_PRINTER = "BlackCopper 80mm Series";
+const DEFAULT_PRINTER = "BlackCopper 80mm Series(2)";
 
 // ========================
 // INIT (runs once, sets up security — NO connection here)
@@ -29,11 +29,44 @@ const initializeQZ = () => {
 // Reuses the existing websocket if already active.
 // ========================
 export const connectQZ = async () => {
-  initializeQZ();                          // set up security (no-op after first call)
+  initializeQZ();
 
-  if (qz.websocket.isActive()) return;     // already connected — do nothing, no prompt
+  try {
+    if (qz.websocket.isActive()) {
+      return;
+    }
 
-  await qz.websocket.connect();            // only connects (and shows permission prompt) when truly needed
+    await qz.websocket.connect();
+  } catch (err) {
+    console.error("QZ Connection Error:", err);
+
+    try {
+      await qz.websocket.disconnect();
+    } catch (_) {}
+
+    await qz.websocket.connect();
+  }
+};
+const safePrint = async (config, data, options = {}) => {
+  try {
+    await connectQZ();
+
+    if (!qz.websocket.isActive()) {
+      throw new Error("QZ websocket not active");
+    }
+
+    return await qz.print(config, data, options);
+  } catch (err) {
+    console.error("Print Error:", err);
+
+    try {
+      await qz.websocket.disconnect();
+    } catch (_) {}
+
+    await connectQZ();
+
+    return await qz.print(config, data, options);
+  }
 };
 
 // ========================
@@ -178,7 +211,7 @@ export const printKitchenToken = async (order, printerName = DEFAULT_PRINTER) =>
       endPrintShort(),   // ← 1-line feed instead of 4
     ];
 
-    await qz.print(config, data, { copies: 1 });
+    await safePrint(config, data, { copies: 1 });
   }
 };
 
@@ -205,7 +238,7 @@ export const printWaiterToken = async (order, waiter, printerName = DEFAULT_PRIN
     endPrint(),
   ];
 
-  await qz.print(config, data, { copies: 1 });
+  await safePrint(config, data, { copies: 1 });
 };
 
 // ========================
@@ -249,7 +282,7 @@ export const printCustomerBill = async (order, restaurant, printerName = DEFAULT
     endPrint(),
   ];
 
-  await qz.print(config, data, { copies: 1 });
+  await safePrint(config, data, { copies: 1 });
 };
 
 // ========================
@@ -305,5 +338,5 @@ export const printPaidBill = async (order, restaurant, waiter, printerName = DEF
     endPrint(),
   ];
 
-  await qz.print(config, data, { copies: 1 });
+  await safePrint(config, data, { copies: 1 });
 };
