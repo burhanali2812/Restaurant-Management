@@ -1,6 +1,6 @@
 import qz from "qz-tray";
 
-const DEFAULT_PRINTER = "BlackCopper 80mm Series";
+const DEFAULT_PRINTER = "BlackCopper 80mm Series(2)";
 
 // ========================
 // INIT (runs once, sets up security — NO connection here)
@@ -142,38 +142,50 @@ const buildBillData = (order) => {
 
 // ========================
 // KITCHEN TOKEN
+// One separate slip printed per item in the order.
 // ========================
 export const printKitchenToken = async (order, printerName = DEFAULT_PRINTER) => {
-  await connectQZ();   // ← connects here, only when printing
+  await connectQZ();
   const config = getConfig(printerName);
 
-  const items = order.items
-    .map((i) => `  ${i.quantity} x ${itemLabel(i)}`)
-    .join("\n");
+  for (const item of order.items) {
+    const label = itemLabel(item);   // e.g. "Daal Mash (Half)"
 
-  const data = [
-    CMD.INIT,
-    CMD.ALIGN_CENTER,
-    CMD.FONT_BIG, CMD.BOLD_ON,
-    "KITCHEN\n",
-    CMD.FONT_NORMAL, CMD.BOLD_OFF,
-    line() + "\n",
-    CMD.ALIGN_LEFT,
-    CMD.BOLD_ON, "Order #: ", CMD.BOLD_OFF, `${order.OrderNo}\n`,
-    CMD.BOLD_ON, "Table  : ", CMD.BOLD_OFF, `${order.tableNo || "-"}\n`,
-    CMD.BOLD_ON, "Type   : ", CMD.BOLD_OFF, `${(order.orderType || "dine-in").toUpperCase()}\n`,
-    CMD.BOLD_ON, "Time   : ", CMD.BOLD_OFF, `${new Date().toLocaleTimeString()}\n`,
-    line() + "\n",
-    CMD.BOLD_ON, "  ITEMS\n", CMD.BOLD_OFF,
-    line() + "\n",
-    items + "\n",
-    line() + "\n",
-    CMD.ALIGN_CENTER,
-    `Total Items: ${order.items.reduce((s, i) => s + i.quantity, 0)}\n`,
-    endPrint(),
-  ];
+    const data = [
+      CMD.INIT,
 
-  await qz.print(config, data, { copies: 1 });
+      CMD.ALIGN_CENTER,
+      CMD.FONT_BIG, CMD.BOLD_ON,
+      "KITCHEN\n",
+      CMD.FONT_NORMAL, CMD.BOLD_OFF,
+
+      line() + "\n",
+
+      CMD.ALIGN_LEFT,
+      CMD.BOLD_ON, "Order #: ", CMD.BOLD_OFF, `${order.OrderNo}\n`,
+      CMD.BOLD_ON, "Table  : ", CMD.BOLD_OFF, `${order.tableNo || "-"}\n`,
+      CMD.BOLD_ON, "Type   : ", CMD.BOLD_OFF, `${(order.orderType || "dine-in").toUpperCase()}\n`,
+      CMD.BOLD_ON, "Time   : ", CMD.BOLD_OFF, `${new Date().toLocaleTimeString()}\n`,
+
+      line() + "\n",
+      CMD.BOLD_ON, "  ITEM\n", CMD.BOLD_OFF,
+      line() + "\n",
+
+      // Big quantity + item name so kitchen staff see it instantly
+      CMD.ALIGN_CENTER,
+      CMD.FONT_BIG, CMD.BOLD_ON,
+      `${item.quantity} x\n`,
+      CMD.FONT_NORMAL,
+      `${label}\n`,
+      CMD.BOLD_OFF,
+
+      line() + "\n",
+
+      endPrint(),
+    ];
+
+    await qz.print(config, data, { copies: 1 });
+  }
 };
 
 // ========================
