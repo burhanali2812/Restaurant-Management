@@ -16,71 +16,103 @@ function OrderManagement() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [expandedOrder, setExpandedOrder] = useState(null);
-  const [loading, setLoading] = useState(false);
+ const [loading, setLoading] = useState(false);
+const [deletingId, setDeletingId] = useState(null);
+const [updatingId, setUpdatingId] = useState(null);
 
   // ================= FETCH =================
-  const fetchOrders = async () => {
-    try {
-      const res = await axios.get(
-        "https://restaurant-manage-backend.vercel.app/api/orders/getOrders",
-        { headers: { Authorization: `Bearer ${token}` } },
-      );
+const fetchOrders = async () => {
+  setLoading(true);
 
-      setOrders(res.data.data || []);
-    } catch (err) {
-      console.log(err);
-    }
-  };
+  try {
+    const res = await axios.get(
+      "https://restaurant-manage-backend.vercel.app/api/orders/getOrders",
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    setOrders(res.data.data || []);
+  } catch (err) {
+    console.log(err);
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => {
     fetchOrders();
   }, []);
 
   // ================= STATUS UPDATE =================
-  const updateStatus = async (id, status) => {
-    setLoading(true);
-    try {
-      const res = await axios.put(
-        `https://restaurant-manage-backend.vercel.app/api/orders/updateOrder/${id}`,
-        { status , amount: orders.find((o) => o._id === id)?.total || 0 },
-        { headers: { Authorization: `Bearer ${token}` } },
-      );
-      if (status === "served") {
-        await connectQZ();
-        await printCustomerBill(res.data.data, res.data.restaurant);
-      }
-      if (status === "paid") {
-        await connectQZ();
-        await printPaidBill(
-          res.data.data,
-          res.data.restaurant,
-          res.data.waiter,
-        );
-      }
-      
+ const updateStatus = async (id, status) => {
+  setUpdatingId(id);
 
-      fetchOrders();
-      setLoading(false);
-    } catch (err) {
-      alert("Status update failed");
-    } finally {
-      setLoading(false);
+  try {
+    const res = await axios.put(
+      `https://restaurant-manage-backend.vercel.app/api/orders/updateOrder/${id}`,
+      {
+        status,
+        amount: orders.find((o) => o._id === id)?.total || 0,
+      },
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    // Update UI instantly
+    setOrders((prev) =>
+      prev.map((o) =>
+        o._id === id ? { ...o, status } : o
+      )
+    );
+
+    if (status === "served") {
+      await connectQZ();
+      await printCustomerBill(res.data.data, res.data.restaurant);
     }
-  };
+
+    if (status === "paid") {
+      await connectQZ();
+      await printPaidBill(
+        res.data.data,
+        res.data.restaurant,
+        res.data.waiter
+      );
+    }
+  } catch (err) {
+    alert("Status update failed");
+    fetchOrders();
+  } finally {
+    setUpdatingId(null);
+  }
+};
 
   // ================= DELETE =================
-  const deleteOrder = async (id) => {
-    if (!window.confirm("Delete this order?")) return;
+const deleteOrder = async (id) => {
+  if (!window.confirm("Delete this order?")) return;
 
+  const previousOrders = [...orders];
+
+  setDeletingId(id);
+
+  // Remove instantly from UI
+  setOrders((prev) => prev.filter((o) => o._id !== id));
+
+  try {
     await axios.delete(
       `https://restaurant-manage-backend.vercel.app/api/orders/deleteOrder/${id}`,
       {
-        headers: { Authorization: `Bearer ${token}` },
-      },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
     );
-
-    fetchOrders();
-  };
+  } catch (err) {
+    setOrders(previousOrders);
+    alert("Delete failed");
+  } finally {
+    setDeletingId(null);
+  }
+};
 
   // ================= FILTER =================
   const filteredOrders = orders.filter((o) => {
@@ -158,9 +190,22 @@ function OrderManagement() {
             <i className="fa fa-receipt me-2"></i>Orders
           </h4>
 
-          <button className="btn btn-dark" onClick={fetchOrders}>
-            <i className="fa fa-sync me-1"></i> Refresh
-          </button>
+         <button
+  className="btn btn-dark"
+  onClick={fetchOrders}
+  disabled={loading}
+>
+  {loading ? (
+    <>
+      <span className="spinner-border spinner-border-sm me-2"></span>
+      Refreshing...
+    </>
+  ) : (
+    <>
+      <i className="fa fa-sync me-1"></i> Refresh
+    </>
+  )}
+</button>
         </div>
 
         {/* FILTERS */}
@@ -248,18 +293,23 @@ function OrderManagement() {
                         <b>Rs {o.total}</b>
                       </td>
 
-                      <td>
-                        <span className={`badge bg-${statusColor(o.status)}`}>
-                          {o.status}
-                        </span>
-                      </td>
+                    <td>
+  <span className={`badge bg-${statusColor(o.status)}`}>
+    {o.status}
+  </span>
+
+  {updatingId === o._id && (
+    <span className="spinner-border spinner-border-sm ms-2"></span>
+  )}
+</td>
 
                       <td>
-                        <select
-                          className="form-select form-select-sm"
-                          value={o.status}
-                          onChange={(e) => updateStatus(o._id, e.target.value)}
-                        >
+                       <select
+  className="form-select form-select-sm"
+  value={o.status}
+  disabled={updatingId === o._id}
+  onChange={(e) => updateStatus(o._id, e.target.value)}
+>
                           <option value="pending">Pending</option>
                           <option value="in-progress">In Progress</option>
                           <option value="ready">Ready</option>
@@ -270,12 +320,17 @@ function OrderManagement() {
                       </td>
 
                       <td>
-                        <button
-                          className="btn btn-sm btn-danger"
-                          onClick={() => deleteOrder(o._id)}
-                        >
-                          <i className="fa fa-trash"></i>
-                        </button>
+                       <button
+  className="btn btn-sm btn-danger"
+  onClick={() => deleteOrder(o._id)}
+  disabled={deletingId === o._id}
+>
+  {deletingId === o._id ? (
+    <span className="spinner-border spinner-border-sm"></span>
+  ) : (
+    <i className="fa fa-trash"></i>
+  )}
+</button>
 
                         <button
                           className="btn btn-sm btn-primary ms-2"

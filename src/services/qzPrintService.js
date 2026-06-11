@@ -97,7 +97,8 @@ const twoCol = (left, right, width = WIDTH) => {
 const itemLabel = (item) =>
   item.variantName ? `${item.name} (${item.variantName})` : item.name;
 
-const endPrint = () => "\n\n" + CMD.FEED + CMD.CUT;
+const endPrint      = () => "\n\n" + CMD.FEED + CMD.CUT;
+const endPrintShort = () => "\n"   + ESC + "\x64\x01" + CMD.CUT;  // 1-line feed before cut
 
 const buildItemLine = (item) => {
   const label    = itemLabel(item);
@@ -154,34 +155,27 @@ export const printKitchenToken = async (order, printerName = DEFAULT_PRINTER) =>
     const data = [
       CMD.INIT,
 
+      // ── HEADER ──
       CMD.ALIGN_CENTER,
-      CMD.FONT_BIG, CMD.BOLD_ON,
-      "KITCHEN\n",
-      CMD.FONT_NORMAL, CMD.BOLD_OFF,
+      CMD.FONT_BIG, CMD.BOLD_ON, "KITCHEN\n", CMD.FONT_NORMAL, CMD.BOLD_OFF,
 
-      line() + "\n",
-
+      // ── ORDER META (compact, no blank lines) ──
       CMD.ALIGN_LEFT,
-      CMD.BOLD_ON, "Order #: ", CMD.BOLD_OFF, `${order.OrderNo}\n`,
-      CMD.BOLD_ON, "Table  : ", CMD.BOLD_OFF, `${order.tableNo || "-"}\n`,
-      CMD.BOLD_ON, "Type   : ", CMD.BOLD_OFF, `${(order.orderType || "dine-in").toUpperCase()}\n`,
-      CMD.BOLD_ON, "Time   : ", CMD.BOLD_OFF, `${new Date().toLocaleTimeString()}\n`,
-
       line() + "\n",
-      CMD.BOLD_ON, "  ITEM\n", CMD.BOLD_OFF,
-      line() + "\n",
+      CMD.BOLD_ON, "Order#:", CMD.BOLD_OFF, ` ${order.OrderNo}  `,
+      CMD.BOLD_ON, "Table:", CMD.BOLD_OFF,  ` ${order.tableNo || "-"}\n`,
+      CMD.BOLD_ON, "Type :", CMD.BOLD_OFF,  ` ${(order.orderType || "dine-in").toUpperCase()}  `,
+      CMD.BOLD_ON, "Time:", CMD.BOLD_OFF,   ` ${new Date().toLocaleTimeString()}\n`,
 
-      // Big quantity + item name so kitchen staff see it instantly
+      // ── ITEM (large, centred) ──
+      line() + "\n",
       CMD.ALIGN_CENTER,
-      CMD.FONT_BIG, CMD.BOLD_ON,
-      `${item.quantity} x\n`,
-      CMD.FONT_NORMAL,
+      CMD.FONT_BIG, CMD.BOLD_ON, `${item.quantity} x\n`, CMD.FONT_NORMAL,
       `${label}\n`,
       CMD.BOLD_OFF,
-
       line() + "\n",
 
-      endPrint(),
+      endPrintShort(),   // ← 1-line feed instead of 4
     ];
 
     await qz.print(config, data, { copies: 1 });
