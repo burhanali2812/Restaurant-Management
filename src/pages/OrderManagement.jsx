@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import TopBar from "../components/TopBar";
+import { useNavigate } from "react-router-dom";
 
 import {
   connectQZ,
@@ -19,6 +20,7 @@ function OrderManagement() {
  const [loading, setLoading] = useState(false);
 const [deletingId, setDeletingId] = useState(null);
 const [updatingId, setUpdatingId] = useState(null);
+  const navigate = useNavigate();
 
   // ================= FETCH =================
 const fetchOrders = async () => {
@@ -170,6 +172,9 @@ const deleteOrder = async (id) => {
       }
     }
   };
+  const editOrder = (order) => {
+    navigate("/new-order", { state: { order } });
+  }
 
   return (
     <div>
@@ -337,6 +342,12 @@ const deleteOrder = async (id) => {
                           onClick={() => printInvoices(o)}
                         >
                           <i className="fa fa-file-invoice"></i>
+                        </button>
+                         <button
+                          className="btn btn-sm btn-success ms-2"
+                          onClick={() => editOrder(o)}
+                        >
+                        <i class="fa-regular fa-pen-to-square"></i>
                         </button>
                       </td>
                     </tr>

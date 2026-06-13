@@ -6,15 +6,14 @@ function RestaurantDashboard() {
   const navigate = useNavigate();
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  const tomorrowStart = new Date(today);
-  tomorrowStart.setDate(tomorrowStart.getDate() + 1);
+
 
   const [userName, setUserName] = useState("Owner");
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
   const [showCalendar, setShowCalendar] = useState(false);
   const [restaurantInfo, setRestaurantInfo] = useState(null);
   const [startDate, setStartDate] = useState(today);
-  const [endDate, setEndDate] = useState(tomorrowStart);
+  const [endDate, setEndDate] = useState(today);
   const [showSalesModal, setShowSalesModal] = useState(false);
 const [searchTerm, setSearchTerm] = useState("");
   const [metrics, setMetrics] = useState({

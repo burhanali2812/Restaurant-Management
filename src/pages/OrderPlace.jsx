@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import TopBar from "../components/TopBar";
+import {useLocation, useNavigate} from "react-router-dom"; 
 import {
   connectQZ,
   printCustomerBill,
@@ -162,6 +163,37 @@ export default function OrderPlace() {
 
   const [search, setSearch]               = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
+  const location = useLocation();
+    const navigate = useNavigate();
+    // If coming from edit page, prefill the form
+  useEffect(() => {
+    if (location.state?.order) {
+      const { order } = location.state;
+      setOrderType(order.orderType);
+      setTableNo(order.tableNo || "");
+      setSelectedWaiter(order.waiterId || "");
+      setDiscount(order.discount || "");
+    setCart(
+  order.items.map((i) => {
+    const productId =
+      typeof i.productId === "object"
+        ? i.productId._id
+        : i.productId;
+
+    return {
+      key: String(productId) + "-" + (i.variantName || "default"),
+      productId: String(productId),
+      name: i.name,
+      variantName: i.variantName,
+      price: Number(i.price),
+      quantity: Number(i.quantity),
+    };
+  })
+);
+    }
+    }, [location.state]);
+
+ 
 
   const BASE = "https://restaurant-manage-backend.vercel.app/api";
   const headers = { Authorization: `Bearer ${token}` };
@@ -187,30 +219,55 @@ export default function OrderPlace() {
   }, []);
 
   // ─── CART ───
-  const addToCart = (product, variant = null) => {
-    const key   = product._id + "-" + (variant?.name || "default");
-    const price = variant ? Number(variant.price) : Number(product.price);
-    setCart((prev) => {
-      const hit = prev.find((i) => i.key === key);
-      if (hit) return prev.map((i) => i.key === key ? { ...i, quantity: i.quantity + 1 } : i);
-      return [...prev, {
+const addToCart = (product, variant = null) => {
+  const productId = String(product._id);
+
+  const key =
+    productId + "-" + (variant?.name || "default");
+
+  const price = variant
+    ? Number(variant.price)
+    : Number(product.price);
+
+  setCart((prev) => {
+    const hit = prev.find((i) => i.key === key);
+
+    if (hit) {
+      return prev.map((i) =>
+        i.key === key
+          ? { ...i, quantity: Number(i.quantity) + 1 }
+          : i
+      );
+    }
+
+    return [
+      ...prev,
+      {
         key,
-        productId: product._id,
+        productId,
         name: product.name,
         variantName: variant?.name || null,
         price,
         quantity: 1,
-      }];
-    });
-  };
+      },
+    ];
+  });
+};
 
-  const changeQty = (key, delta) => {
-    setCart((prev) =>
-      prev
-        .map((i) => i.key === key ? { ...i, quantity: i.quantity + delta } : i)
-        .filter((i) => i.quantity > 0)
-    );
-  };
+const changeQty = (key, delta) => {
+  setCart((prev) =>
+    prev
+      .map((i) =>
+        i.key === key
+          ? {
+              ...i,
+              quantity: Math.max(0, Number(i.quantity) + delta),
+            }
+          : i
+      )
+      .filter((i) => i.quantity > 0)
+  );
+};
 
   const removeItem = (key) => setCart((prev) => prev.filter((i) => i.key !== key));
 
@@ -235,59 +292,105 @@ export default function OrderPlace() {
     return true;
   };
 
-  // ─── PLACE ORDER ───
-  const placeOrder = async () => {
-    if (!validate()) return;
-    setPlacing(true);
+  const updateOrder = async (orderId) => {
+  if (!validate()) return;
 
-    const payload = {
-      restaurantId,
-      tableNo,
-      orderType,
-      waiterId: selectedWaiter || null,
-      items: cart.map((i) => ({
-        productId: i.productId,
-        name: i.name,
-        variantName: i.variantName,
-        price: i.price,
-        quantity: i.quantity,
-        total: i.price * i.quantity,
-      })),
-      subtotal,
-      discount: discountAmt,
-      total,
-    }
-    console.log("Payload:", payload);
+  setPlacing(true);
 
-    try {
-      const res = await axios.post(`${BASE}/orders/addOrder`, payload, { headers });
-      const order = res.data.data;
-
-      if (orderType === "dine-in") {
-        printKitchenToken(order);
-        printWaiterToken(order, res.data.waiter?.name || "N/A");
-      }
-      else if (orderType === "takeaway" || orderType === "delivery") {
-        printKitchenToken(order);
-        printPaidBill(order, res.data.restaurant, res.data.waiter?.name || "N/A");
-      }
-       else {
-        printKitchenToken(order);
-        printCustomerBill(order, res.data.restaurant);
-      }
-
-      setCart([]);
-      setTableNo("");
-      setSelectedWaiter("");
-      setDiscount("");
-      alert("Order placed successfully!");
-    } catch (err) {
-      console.error(err);
-      alert(err.response?.data?.message || "Failed to place order. Try again.");
-    } finally {
-      setPlacing(false);
-    }
+  const payload = {
+    tableNo,
+    orderType,
+    waiterId: selectedWaiter || null,
+    discount: discountAmt,
+    items: cart.map((i) => ({
+      productId: i.productId,
+      name: i.name,
+      variantName: i.variantName,
+      quantity: i.quantity,
+      
+    })),
   };
+
+  try {
+    const res = await axios.put(
+      `${BASE}/orders/update-whole-order/${orderId}`,
+      payload,
+      { headers }
+    );
+    if(res.data.success){
+ alert("Order updated successfully!");
+      printCustomerBill(res.data.data, res.data.restaurant);
+    navigate("/orders");
+    }
+
+   
+  } catch (err) {
+    console.error(err);
+    alert(err.response?.data?.message || "Failed to update order. Try again.");
+  } finally {
+    setPlacing(false);
+  }
+};
+
+  // ─── PLACE ORDER ───
+ const placeOrder = async () => {
+  if (!validate()) return;
+  setPlacing(true);
+
+  const payload = {
+    restaurantId,
+    tableNo,
+    orderType,
+    waiterId: selectedWaiter || null,
+    discount: Number(discountAmt) || 0,
+
+    // ❌ no price, no total (backend handles everything)
+    items: cart.map((i) => ({
+      productId: i.productId,
+      name: i.name,
+      variantName: i.variantName || null,
+      quantity: Number(i.quantity) || 0,
+    })),
+  };
+
+  console.log("Payload:", payload);
+
+  try {
+    const res = await axios.post(
+      `${BASE}/orders/addOrder`,
+      payload,
+      { headers }
+    );
+
+    const order = res.data.data;
+
+    if (orderType === "dine-in") {
+      printKitchenToken(order);
+      printWaiterToken(order, res.data.waiter?.name || "N/A");
+    } 
+    else if (orderType === "takeaway" || orderType === "delivery") {
+      printKitchenToken(order);
+      printPaidBill(order, res.data.restaurant, res.data.waiter?.name || "N/A");
+    } 
+    else {
+      printKitchenToken(order);
+      printCustomerBill(order, res.data.restaurant);
+    }
+
+    // reset UI
+    setCart([]);
+    setTableNo("");
+    setSelectedWaiter("");
+    setDiscount("");
+
+    alert("Order placed successfully!");
+  } catch (err) {
+    console.error(err);
+    alert(err.response?.data?.message || "Failed to place order. Try again.");
+  } finally {
+    setPlacing(false);
+  }
+};
 
   const cartCount = cart.reduce((a, i) => a + i.quantity, 0);
 
@@ -540,7 +643,7 @@ export default function OrderPlace() {
                   fontSize: "14px",
                   letterSpacing: ".02em",
                 }}
-                onClick={placeOrder}
+                onClick={location.state?.order ? () => updateOrder(location.state.order._id) : placeOrder}
                 disabled={placing || cart.length === 0}
               >
                 {placing ? (
@@ -551,7 +654,7 @@ export default function OrderPlace() {
                 ) : (
                   <>
                     <i className="fa fa-check-circle me-2" />
-                    Confirm Order
+                    {location.state?.order ? "Update Order" : "Place Order"}
                     {cartCount > 0 && (
                       <span style={{ marginLeft: "8px", background: "#fff", color: "#212529", borderRadius: "12px", padding: "1px 8px", fontSize: "12px", fontWeight: 700 }}>
                         {cartCount}
