@@ -91,6 +91,10 @@ const [searchTerm, setSearchTerm] = useState("");
           headers: {
             Authorization: `Bearer ${token}`,
           },
+          params: {
+            startDate: startDate.toLocaleDateString("en-CA"),
+            endDate: endDate.toLocaleDateString("en-CA"),
+          },
         },
       );
       if (response.data) {
