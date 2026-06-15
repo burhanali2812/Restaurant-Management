@@ -64,8 +64,8 @@ const [searchTerm, setSearchTerm] = useState("");
             Authorization: `Bearer ${token}`,
           },
           params: {
-            startDate: startDate.toISOString().split("T")[0],
-            endDate: endDate.toISOString().split("T")[0],
+            startDate: startDate.toLocaleDateString("en-CA"),
+            endDate: endDate.toLocaleDateString("en-CA"),
           },
         },
       );
@@ -275,7 +275,7 @@ const [searchTerm, setSearchTerm] = useState("");
                   <label>Start Date</label>
                   <input
                     type="date"
-                    value={startDate.toISOString().split("T")[0]}
+                    value={startDate.toLocaleDateString("en-CA")}
                     onChange={(e) => handleDateChange(e, "start")}
                   />
                 </div>
@@ -283,7 +283,7 @@ const [searchTerm, setSearchTerm] = useState("");
                   <label>End Date</label>
                   <input
                     type="date"
-                    value={endDate.toISOString().split("T")[0]}
+                    value={endDate.toLocaleDateString("en-CA")}
                     onChange={(e) => handleDateChange(e, "end")}
                   />
                 </div>
