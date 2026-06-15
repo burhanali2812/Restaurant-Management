@@ -365,16 +365,16 @@ const changeQty = (key, delta) => {
     const order = res.data.data;
 
     if (orderType === "dine-in") {
-      printKitchenToken(order);
-      printWaiterToken(order, res.data.waiter?.name || "N/A");
+     await printKitchenToken(order);
+     await printWaiterToken(order, res.data.waiter?.name || "N/A");
     } 
     else if (orderType === "takeaway" || orderType === "delivery") {
-      printKitchenToken(order);
-      printPaidBill(order, res.data.restaurant, res.data.waiter?.name || "N/A");
+      await printKitchenToken(order);
+      await printPaidBill(order, res.data.restaurant, res.data.waiter?.name || "N/A");
     } 
     else {
-      printKitchenToken(order);
-      printCustomerBill(order, res.data.restaurant);
+      await printKitchenToken(order);
+      await printCustomerBill(order, res.data.restaurant);
     }
 
     // reset UI

@@ -163,8 +163,14 @@ const deleteOrder = async (id) => {
         );
       } else if (order.status === "served") {
         await printCustomerBill(order, restaurant);
-      } else if (order.status === "pending" || order.status === "in-progress" || order.status === "ready") {
+      } else if (order.status === "pending" || order.status === "in-progress" ) {
         await printKitchenToken(order);
+        await printWaiterToken(
+          order,
+          order.waiterId ? order.waiterId.name : "N/A",
+        );
+      }
+      else if (order.status === "ready") {
         await printWaiterToken(
           order,
           order.waiterId ? order.waiterId.name : "N/A",
