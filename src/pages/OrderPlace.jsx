@@ -192,6 +192,11 @@ export default function OrderPlace() {
 );
     }
     }, [location.state]);
+    useEffect(() => {
+  if (search.trim() !== "") {
+    setCategoryFilter("all");
+  }
+}, [search]);
 
  
 
@@ -272,11 +277,20 @@ const changeQty = (key, delta) => {
   const removeItem = (key) => setCart((prev) => prev.filter((i) => i.key !== key));
 
   // ─── FILTER ───
-  const filtered = products.filter((p) => {
-    const matchSearch = p.name.toLowerCase().includes(search.toLowerCase());
-    const matchCat    = categoryFilter === "all" || p.categoryId?._id === categoryFilter;
-    return matchSearch && matchCat && p.isAvailable !== false;
-  });
+const filtered = products.filter((p) => {
+  const matchSearch =
+    search.trim() === "" ||
+    p.name.toLowerCase().includes(search.toLowerCase());
+
+  // category only applies when search is empty
+  const matchCat =
+    search.trim() !== ""
+      ? true
+      : categoryFilter === "all" ||
+        p.categoryId?._id === categoryFilter;
+
+  return matchSearch && matchCat && p.isAvailable !== false;
+});
 
   // ─── TOTALS ───
   const subtotal   = cart.reduce((a, i) => a + i.price * i.quantity, 0);
@@ -344,7 +358,7 @@ const changeQty = (key, delta) => {
     waiterId: selectedWaiter || null,
     discount: Number(discountAmt) || 0,
 
-    // ❌ no price, no total (backend handles everything)
+    // no price, no total (backend handles everything)
     items: cart.map((i) => ({
       productId: i.productId,
       name: i.name,
@@ -394,6 +408,7 @@ const changeQty = (key, delta) => {
 
   const cartCount = cart.reduce((a, i) => a + i.quantity, 0);
 
+
   // ─── UI ───
   return (
     <div style={S.page}>
@@ -429,11 +444,11 @@ const changeQty = (key, delta) => {
             {/* Category pills */}
             <div className="d-flex gap-2 overflow-auto pb-2 mb-3" style={{ scrollbarWidth: "none" }}>
               <button style={S.catBtn(categoryFilter === "all")} onClick={() => setCategoryFilter("all")}>
-                All
+                All{` (${products.length})`}
               </button>
               {categories.map((c) => (
                 <button key={c._id} style={S.catBtn(categoryFilter === c._id)} onClick={() => setCategoryFilter(c._id)}>
-                  {c.name}
+                  {c.name}{` (${products.filter(p => p.categoryId?._id === c._id).length})`}
                 </button>
               ))}
             </div>
