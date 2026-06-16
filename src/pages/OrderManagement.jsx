@@ -210,6 +210,15 @@ const deleteOrder = async (id) => {
   const editOrder = (order) => {
     navigate("/new-order", { state: { order } });
   }
+  const statusCounts = {
+  all: orders.length,
+  pending: orders.filter(o => o.status === "pending").length,
+  "in-progress": orders.filter(o => o.status === "in-progress").length,
+  ready: orders.filter(o => o.status === "ready").length,
+  served: orders.filter(o => o.status === "served").length,
+  paid: orders.filter(o => o.status === "paid").length,
+  cancelled: orders.filter(o => o.status === "cancelled").length,
+};
 
   return (
     <div>
@@ -251,8 +260,8 @@ const deleteOrder = async (id) => {
 
         {/* FILTERS */}
         <div className="row mb-3">
-         <div className="row mb-3">
-  <div className="col-md-2 mb-2">
+  <div className="row mb-3">
+  <div className="col-md-4 mb-2">
     <input
       className="form-control"
       placeholder="Search Order No / Table"
@@ -261,23 +270,7 @@ const deleteOrder = async (id) => {
     />
   </div>
 
-  <div className="col-md-2 mb-2">
-    <select
-      className="form-select"
-      value={statusFilter}
-      onChange={(e) => setStatusFilter(e.target.value)}
-    >
-      <option value="all">All Status</option>
-      <option value="pending">Pending</option>
-      <option value="in-progress">In Progress</option>
-      <option value="ready">Ready</option>
-      <option value="served">Served</option>
-      <option value="paid">Paid</option>
-      <option value="cancelled">Cancelled</option>
-    </select>
-  </div>
-
-  <div className="col-md-2 mb-2">
+  <div className="col-md-3 mb-2">
     <input
       type="date"
       className="form-control"
@@ -289,7 +282,7 @@ const deleteOrder = async (id) => {
     />
   </div>
 
-  <div className="col-md-2 mb-2">
+  <div className="col-md-3 mb-2">
     <input
       type="date"
       className="form-control"
@@ -300,23 +293,48 @@ const deleteOrder = async (id) => {
       }}
     />
   </div>
-  <div className="col-md-2 mb-2">
-  <div
-    className="border rounded d-flex align-items-center justify-content-center h-100 bg-light"
-    style={{ minHeight: "38px" }}
-  >
-    <strong>Total Orders: {filteredOrders.length}</strong>
-  </div>
-</div>
 
   <div className="col-md-2 mb-2">
     <button
       className="btn btn-primary w-100"
       onClick={fetchOrders}
     >
-      Apply Date Filter
+      Apply Filter
     </button>
   </div>
+</div>
+<div className="row mb-4">
+  {[
+  { key: "all", label: "All Orders", color: "#f59e0b" },       // Slate
+  { key: "pending", label: "Pending", color: "#f59e0b" },      // Soft Amber
+  { key: "in-progress", label: "In Progress", color: "#f59e0b" }, // Blue
+  { key: "ready", label: "Ready", color: "#f59e0b" },          // Gray
+  { key: "served", label: "Served", color: "#f59e0b" },        // Cyan
+  { key: "paid", label: "Paid", color: "#f59e0b" },            // Emerald
+  { key: "cancelled", label: "Cancelled", color: "#f59e0b" },  // Red
+].map((item) => (
+    <div className="col" key={item.key}>
+   <div
+  className="card shadow-sm "
+  style={{
+    cursor: "pointer",
+    backgroundColor:
+      statusFilter === item.key ? item.color : "#ffffff",
+    color:
+      statusFilter === item.key ? "#ffffff" : "#111827",
+    transition: "all 0.2s ease",
+  }}
+  onClick={() => setStatusFilter(item.key)}
+>
+  <div className="card-body text-center py-3">
+    <div className="small fw-semibold">{item.label}</div>
+    <div className="fs-4 fw-bold">
+      {statusCounts[item.key]}
+    </div>
+  </div>
+</div>
+    </div>
+  ))}
 </div>
 
       
