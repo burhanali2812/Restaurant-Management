@@ -302,37 +302,35 @@ const deleteOrder = async (id) => {
       Apply Filter
     </button>
   </div>
+
+
 </div>
 <div className="row mb-4">
   {[
-  { key: "all", label: "All Orders", color: "#f59e0b" },       // Slate
-  { key: "pending", label: "Pending", color: "#f59e0b" },      // Soft Amber
-  { key: "in-progress", label: "In Progress", color: "#f59e0b" }, // Blue
-  { key: "ready", label: "Ready", color: "#f59e0b" },          // Gray
-  { key: "served", label: "Served", color: "#f59e0b" },        // Cyan
-  { key: "paid", label: "Paid", color: "#f59e0b" },            // Emerald
-  { key: "cancelled", label: "Cancelled", color: "#f59e0b" },  // Red
-].map((item) => (
+    { key: "all", label: "All", color: "info" },
+    { key: "pending", label: "Pending", color: "info" },
+    { key: "in-progress", label: "In Progress", color: "info" },
+    { key: "ready", label: "Ready", color: "info" },
+    { key: "served", label: "Served", color: "info" },
+    { key: "paid", label: "Paid", color: "info" },
+    { key: "cancelled", label: "Cancelled", color: "info" },
+  ].map((item) => (
     <div className="col" key={item.key}>
-   <div
-  className="card shadow-sm "
-  style={{
-    cursor: "pointer",
-    backgroundColor:
-      statusFilter === item.key ? item.color : "#ffffff",
-    color:
-      statusFilter === item.key ? "#ffffff" : "#111827",
-    transition: "all 0.2s ease",
-  }}
-  onClick={() => setStatusFilter(item.key)}
->
-  <div className="card-body text-center py-3">
-    <div className="small fw-semibold">{item.label}</div>
-    <div className="fs-4 fw-bold">
-      {statusCounts[item.key]}
-    </div>
-  </div>
-</div>
+      <div
+        className={`card border-1 ${
+          statusFilter === item.key ? `bg-${item.color} text-white` : ""
+        }`}
+        style={{
+          cursor: "pointer",
+          transition: "0.2s",
+        }}
+        onClick={() => setStatusFilter(item.key)}
+      >
+        <div className="card-body text-center p-2">
+          <h6 className="mb-1">{item.label}</h6>
+          <h4 className="mb-0">{statusCounts[item.key]}</h4>
+        </div>
+      </div>
     </div>
   ))}
 </div>
