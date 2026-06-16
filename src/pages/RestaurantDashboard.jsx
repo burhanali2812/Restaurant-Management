@@ -119,6 +119,10 @@ const [searchTerm, setSearchTerm] = useState("");
           headers: {
             Authorization: `Bearer ${token}`,
           },
+               params: {
+            startDate: startDate.toLocaleDateString("en-CA"),
+            endDate: endDate.toLocaleDateString("en-CA"),
+          },
         },
       );
       if (response.data) {
@@ -499,7 +503,7 @@ const [searchTerm, setSearchTerm] = useState("");
                 ) : (
                   <tr>
                     <td colSpan="5" className="no-data">
-                      No orders found
+                      No orders found for today , please change your date filter or search criteria.
                     </td>
                   </tr>
                 )}

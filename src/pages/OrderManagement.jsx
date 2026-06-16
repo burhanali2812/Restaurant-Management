@@ -21,15 +21,44 @@ function OrderManagement() {
 const [deletingId, setDeletingId] = useState(null);
 const [updatingId, setUpdatingId] = useState(null);
   const navigate = useNavigate();
+  const today = new Date();
+
+const [startDate, setStartDate] = useState(
+  new Date(today.getFullYear(), today.getMonth(), today.getDate())
+);
+
+const [endDate, setEndDate] = useState(
+  new Date(today.getFullYear(), today.getMonth(), today.getDate())
+);
+
+const formatDateForInput = (date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+};
 
   // ================= FETCH =================
 const fetchOrders = async () => {
+  if (startDate > endDate) {
+    return alert("Start date cannot be greater than end date");
+  }
+
   setLoading(true);
 
   try {
     const res = await axios.get(
       "https://restaurant-manage-backend.vercel.app/api/orders/getOrders",
-      { headers: { Authorization: `Bearer ${token}` } }
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        params: {
+          startDate: formatDateForInput(startDate),
+          endDate: formatDateForInput(endDate),
+        },
+      }
     );
 
     setOrders(res.data.data || []);
@@ -218,33 +247,79 @@ const deleteOrder = async (id) => {
   )}
 </button>
         </div>
+        
 
         {/* FILTERS */}
         <div className="row mb-3">
-          <div className="col-md-6 mb-2">
-            <input
-              className="form-control"
-              placeholder="Search Order No / Table"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
+         <div className="row mb-3">
+  <div className="col-md-2 mb-2">
+    <input
+      className="form-control"
+      placeholder="Search Order No / Table"
+      value={search}
+      onChange={(e) => setSearch(e.target.value)}
+    />
+  </div>
 
-          <div className="col-md-6 mb-2">
-            <select
-              className="form-select"
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-            >
-              <option value="all">All</option>
-              <option value="pending">Pending</option>
-              <option value="in-progress">In Progress</option>
-              <option value="ready">Ready</option>
-              <option value="served">Served</option>
-              <option value="paid">Paid</option>
-              <option value="cancelled">Cancelled</option>
-            </select>
-          </div>
+  <div className="col-md-2 mb-2">
+    <select
+      className="form-select"
+      value={statusFilter}
+      onChange={(e) => setStatusFilter(e.target.value)}
+    >
+      <option value="all">All Status</option>
+      <option value="pending">Pending</option>
+      <option value="in-progress">In Progress</option>
+      <option value="ready">Ready</option>
+      <option value="served">Served</option>
+      <option value="paid">Paid</option>
+      <option value="cancelled">Cancelled</option>
+    </select>
+  </div>
+
+  <div className="col-md-2 mb-2">
+    <input
+      type="date"
+      className="form-control"
+      value={formatDateForInput(startDate)}
+      onChange={(e) => {
+        const [y, m, d] = e.target.value.split("-");
+        setStartDate(new Date(y, m - 1, d));
+      }}
+    />
+  </div>
+
+  <div className="col-md-2 mb-2">
+    <input
+      type="date"
+      className="form-control"
+      value={formatDateForInput(endDate)}
+      onChange={(e) => {
+        const [y, m, d] = e.target.value.split("-");
+        setEndDate(new Date(y, m - 1, d));
+      }}
+    />
+  </div>
+  <div className="col-md-2 mb-2">
+  <div
+    className="border rounded d-flex align-items-center justify-content-center h-100 bg-light"
+    style={{ minHeight: "38px" }}
+  >
+    <strong>Total Orders: {filteredOrders.length}</strong>
+  </div>
+</div>
+
+  <div className="col-md-2 mb-2">
+    <button
+      className="btn btn-primary w-100"
+      onClick={fetchOrders}
+    >
+      Apply Date Filter
+    </button>
+  </div>
+</div>
+
+      
         </div>
 
         {/* TABLE */}
@@ -266,7 +341,7 @@ const deleteOrder = async (id) => {
               {filteredOrders.length === 0 ? (
                 <tr>
                   <td colSpan="7" className="text-center text-muted">
-                    No orders found
+                    No orders found please change your date filter or search criteria.
                   </td>
                 </tr>
               ) : (
