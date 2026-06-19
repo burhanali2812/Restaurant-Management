@@ -48,6 +48,12 @@ const [searchTerm, setSearchTerm] = useState("");
   useEffect(() => {
     fetchMetrics();
   }, []);
+  const formatDate = (date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
   
 
   const fetchMetrics = async () => {
@@ -64,8 +70,8 @@ const [searchTerm, setSearchTerm] = useState("");
             Authorization: `Bearer ${token}`,
           },
           params: {
-            startDate: startDate.toLocaleDateString("en-CA"),
-            endDate: endDate.toLocaleDateString("en-CA"),
+            startDate: formatDate(startDate),
+  endDate: formatDate(endDate),
           },
         },
       );
@@ -92,8 +98,8 @@ const [searchTerm, setSearchTerm] = useState("");
             Authorization: `Bearer ${token}`,
           },
           params: {
-            startDate: startDate.toLocaleDateString("en-CA"),
-            endDate: endDate.toLocaleDateString("en-CA"),
+            startDate: formatDate(startDate),
+  endDate: formatDate(endDate),
           },
         },
       );
@@ -120,8 +126,8 @@ const [searchTerm, setSearchTerm] = useState("");
             Authorization: `Bearer ${token}`,
           },
                params: {
-            startDate: startDate.toLocaleDateString("en-CA"),
-            endDate: endDate.toLocaleDateString("en-CA"),
+           startDate: formatDate(startDate),
+  endDate: formatDate(endDate),
           },
         },
       );
@@ -154,14 +160,7 @@ const [searchTerm, setSearchTerm] = useState("");
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const formatDate = (date) => {
-    return date.toLocaleDateString("en-US", {
-      weekday: "short",
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
+
 
   const formatTime = (date) => {
     return date.toLocaleTimeString("en-US", {
@@ -531,7 +530,7 @@ const [searchTerm, setSearchTerm] = useState("");
         </button>
       </div>
       <div>
-               <p className="text-lead">From {startDate.toISOString().split('T')[0]} to {endDate.toISOString().split('T')[0]}</p>
+               <p className="text-lead">From {formatDate(startDate)} to {formatDate(startDate)}</p>
         {/* add note to chnage date from main dashboard */}
         <span className="text-note">Change date range from the calendar icon on top right corner</span>
       </div>

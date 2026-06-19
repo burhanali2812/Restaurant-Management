@@ -31,11 +31,10 @@ const [endDate, setEndDate] = useState(
   new Date(today.getFullYear(), today.getMonth(), today.getDate())
 );
 
-const formatDateForInput = (date) => {
+  const formatDate = (date) => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
-
   return `${year}-${month}-${day}`;
 };
 
@@ -55,8 +54,8 @@ const fetchOrders = async () => {
           Authorization: `Bearer ${token}`,
         },
         params: {
-          startDate: formatDateForInput(startDate),
-          endDate: formatDateForInput(endDate),
+          startDate: formatDate(startDate),
+  endDate: formatDate(endDate),
         },
       }
     );
@@ -274,7 +273,7 @@ const deleteOrder = async (id) => {
     <input
       type="date"
       className="form-control"
-      value={formatDateForInput(startDate)}
+      value={formatDate(startDate)}
       onChange={(e) => {
         const [y, m, d] = e.target.value.split("-");
         setStartDate(new Date(y, m - 1, d));
@@ -286,7 +285,7 @@ const deleteOrder = async (id) => {
     <input
       type="date"
       className="form-control"
-      value={formatDateForInput(endDate)}
+      value={formatDate(endDate)}
       onChange={(e) => {
         const [y, m, d] = e.target.value.split("-");
         setEndDate(new Date(y, m - 1, d));

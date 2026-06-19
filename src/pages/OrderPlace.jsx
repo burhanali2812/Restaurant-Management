@@ -160,6 +160,7 @@ export default function OrderPlace() {
   const [tableNo, setTableNo]             = useState("");
   const [selectedWaiter, setSelectedWaiter] = useState("");
   const [discount, setDiscount]           = useState("");
+  const [isPrinting, setIsPrinting]         = useState(null);
 
   const [search, setSearch]               = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
@@ -349,6 +350,11 @@ const filtered = products.filter((p) => {
   // ─── PLACE ORDER ───
  const placeOrder = async () => {
   if (!validate()) return;
+
+  if(isPrinting === null){
+    const proceed = window.confirm("Do you want to print the receipt for this order?");
+    setIsPrinting(proceed);
+  }
   setPlacing(true);
 
   const payload = {
@@ -375,8 +381,10 @@ const filtered = products.filter((p) => {
       payload,
       { headers }
     );
+    console.log("Order response:", res.data);
 
-    const order = res.data.data;
+   if(isPrinting === true){
+     const order = res.data.data;
 
     if (orderType === "dine-in") {
      await printKitchenToken(order);
@@ -390,6 +398,7 @@ const filtered = products.filter((p) => {
       await printKitchenToken(order);
       await printCustomerBill(order, res.data.restaurant);
     }
+   }
 
     // reset UI
     setCart([]);
@@ -407,6 +416,10 @@ const filtered = products.filter((p) => {
 };
 
   const cartCount = cart.reduce((a, i) => a + i.quantity, 0);
+
+  const swtichIsPrinting = (value) => {
+    setIsPrinting(value);
+  };
 
 
   // ─── UI ───
@@ -647,6 +660,24 @@ const filtered = products.filter((p) => {
                 <span>Total</span>
                 <span style={{ color: "#0d6efd" }}>Rs.{total.toLocaleString()}</span>
               </div>
+              {/* Print Options */}
+<div className="d-flex gap-2 mb-3">
+  <button
+    className={`btn flex-fill ${isPrinting ? "btn-success" : "btn-outline-success"}`}
+    onClick={() => swtichIsPrinting(true)}
+  >
+    <i className="fa fa-print me-2" />
+    Print Receipt
+  </button>
+
+  <button
+    className={`btn flex-fill ${!isPrinting ? "btn-primary" : "btn-outline-primary"}`}
+    onClick={() => swtichIsPrinting(false)}
+  >
+    <i className="fa fa-tree me-2" />
+    Save Tree
+  </button>
+</div>
 
               <button
                 className="btn w-100 mt-3 fw-bold"
